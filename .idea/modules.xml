@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Persain-Text-to-Speech.iml" filepath="$PROJECT_DIR$/Persain-Text-to-Speech.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PersianTextToSpeech/PersianTextToSpeech.iml" filepath="$PROJECT_DIR$/PersianTextToSpeech/PersianTextToSpeech.iml" />
     </modules>
   </component>
 </project>
