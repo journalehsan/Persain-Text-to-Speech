@@ -10,7 +10,7 @@ echo "================================="
 
 # Stop and remove containers
 echo "🔄 Stopping containers..."
-docker-compose down
+docker compose down
 
 # Optional: Remove volumes (uncomment if you want to clean data)
 # echo "🗑️  Removing volumes..."
@@ -27,4 +27,4 @@ echo ""
 
 # Show remaining containers (should be empty)
 echo "📦 Remaining containers:"
-docker-compose ps
+docker compose ps
