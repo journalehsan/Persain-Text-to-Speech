@@ -15,8 +15,8 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Check if Docker Compose is available
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
+if ! docker compose version > /dev/null 2>&1; then
+    echo "❌ Docker Compose is not available. Please ensure Docker Compose V2 is installed."
     exit 1
 fi
 
@@ -27,7 +27,7 @@ mkdir -p nginx/logs
 
 # Build and start services
 echo "🔨 Building and starting services..."
-docker-compose up --build -d
+docker compose up --build -d
 
 # Wait for services to be healthy
 echo "⏳ Waiting for services to be ready..."
@@ -64,10 +64,10 @@ echo "📱 Frontend: http://localhost:4433"
 echo "☕ Java API: http://localhost:8080/api"
 echo "🐍 Python API: http://localhost:8000"
 echo ""
-echo "📊 To view logs: docker-compose logs -f"
+echo "📊 To view logs: docker compose logs -f"
 echo "🛑 To stop: ./stop.sh"
 echo ""
 
 # Show running containers
 echo "📦 Running containers:"
-docker-compose ps
+docker compose ps

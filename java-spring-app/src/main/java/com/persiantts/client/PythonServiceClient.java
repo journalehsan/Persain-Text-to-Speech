@@ -1,6 +1,7 @@
 package com.persiantts.client;
 
 import com.persiantts.model.*;
+import com.persiantts.util.JavaHomographResolver;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class PythonServiceClient {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
-                    .onStatus(HttpStatus::isError, response -> 
+                    .onStatus(status -> status.isError(), response -> 
                         Mono.error(new RuntimeException("Python service error: " + response.statusCode()))
                     )
                     .bodyToMono(TextProcessingResponse.class)

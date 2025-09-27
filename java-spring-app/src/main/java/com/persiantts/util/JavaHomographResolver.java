@@ -42,15 +42,41 @@ public class JavaHomographResolver {
     }
     
     private static String basicRomanization(String word) {
-        Map<Character, String> mapping = Map.of(
-            'ا', "a", 'ب', "b", 'پ', "p", 'ت', "t", 'ث', "s",
-            'ج', "j", 'چ', "ch", 'ح', "h", 'خ', "kh", 'د', "d",
-            'ذ', "z", 'ر', "r", 'ز', "z", 'ژ', "zh", 'س', "s",
-            'ش', "sh", 'ص', "s", 'ض', "z", 'ط', "t", 'ظ', "z",
-            'ع', "a", 'غ', "gh", 'ف', "f", 'ق', "gh", 'ك', "k",
-            'ک', "k", 'گ', "g", 'ل', "l", 'م', "m", 'ن', "n",
-            'و', "v", 'ه', "h", 'ی', "y", 'ئ', "e"
-        );
+        Map<Character, String> mapping = new java.util.HashMap<>();
+        mapping.put('ا', "a");
+        mapping.put('ب', "b");
+        mapping.put('پ', "p");
+        mapping.put('ت', "t");
+        mapping.put('ث', "s");
+        mapping.put('ج', "j");
+        mapping.put('چ', "ch");
+        mapping.put('ح', "h");
+        mapping.put('خ', "kh");
+        mapping.put('د', "d");
+        mapping.put('ذ', "z");
+        mapping.put('ر', "r");
+        mapping.put('ز', "z");
+        mapping.put('ژ', "zh");
+        mapping.put('س', "s");
+        mapping.put('ش', "sh");
+        mapping.put('ص', "s");
+        mapping.put('ض', "z");
+        mapping.put('ط', "t");
+        mapping.put('ظ', "z");
+        mapping.put('ع', "a");
+        mapping.put('غ', "gh");
+        mapping.put('ف', "f");
+        mapping.put('ق', "gh");
+        mapping.put('ك', "k");
+        mapping.put('ک', "k");
+        mapping.put('گ', "g");
+        mapping.put('ل', "l");
+        mapping.put('م', "m");
+        mapping.put('ن', "n");
+        mapping.put('و', "v");
+        mapping.put('ه', "h");
+        mapping.put('ی', "y");
+        mapping.put('ئ', "e");
         
         StringBuilder result = new StringBuilder();
         for (char c : word.toCharArray()) {
