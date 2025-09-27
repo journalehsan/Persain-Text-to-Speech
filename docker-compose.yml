@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  python-service:
+    build: ./python-service
+    container_name: persian-tts-python
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./python-service/ml-models:/app/ml-models
+    environment:
+      - DEBUG=false
+      - HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - persian-tts-network
+
+  java-app:
+    build: ./java-spring-app
+    container_name: persian-tts-java
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_PYTHON_SERVICE_URL=http://python-service:8000
+    depends_on:
+      python-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/tts/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - persian-tts-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: persian-tts-nginx
+    ports:
+      - "4433:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - java-app
+    networks:
+      - persian-tts-network
+
+networks:
+  persian-tts-network:
+    driver: bridge

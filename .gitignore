@@ -1,0 +1,51 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
+logs/
+nginx/logs/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+
+# ML Models (if large)
+python-service/ml-models/*.pkl
+python-service/ml-models/*.joblib
+
+# Temporary files
+*.tmp
+*.temp

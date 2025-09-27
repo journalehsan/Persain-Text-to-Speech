@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persian TTS Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .persian-text { direction: rtl; text-align: right; }
+        .latin-text { direction: ltr; text-align: left; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">سیستم تبدیل متن فارسی به گفتار</h1>
+            <p class="text-lg text-gray-600">Persian Text-to-Speech System Demo</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Input Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">متن فارسی را وارد کنید</h2>
+                <div class="space-y-4">
+                    <textarea 
+                        id="persianInput" 
+                        class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent persian-text"
+                        placeholder="متن فارسی خود را اینجا بنویسید..."></textarea>
+                    
+                    <div class="flex gap-4">
+                        <button 
+                            id="processBtn" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            پردازش متن
+                        </button>
+                        
+                        <button 
+                            id="clearBtn" 
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                            پاک کردن
+                        </button>
+                        
+                        <button 
+                            id="healthBtn" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                            بررسی وضعیت
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Original Text -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">متن اصلی</h3>
+                        <div id="originalText" class="persian-text text-lg text-gray-700 bg-gray-50 p-4 rounded-lg"></div>
+                    </div>
+
+                    <!-- Romanized Text -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">متن لاتین</h3>
+                        <div id="romanizedText" class="latin-text text-lg text-gray-700 bg-gray-50 p-4 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <!-- Tokens and Resolved Words -->
+                <div class="mt-6 grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">کلمات تجزیه شده</h3>
+                        <div id="tokens" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">کلمات حل شده</h3>
+                        <div id="resolvedWords" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">وضعیت پردازش</h3>
+                    <div id="status" class="text-lg"></div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">در حال پردازش...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <strong>خطا:</strong> <span id="errorText"></span>
+            </div>
+
+            <!-- Health Status -->
+            <div id="healthStatus" class="hidden bg-white rounded-lg shadow-lg p-6 mt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">وضعیت سیستم</h3>
+                <div id="healthContent"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-gray-500">
+            <p>Persian TTS System - Hybrid Architecture Demo</p>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const API_BASE = 'http://localhost:8080/api';
+            
+            // Process text button
+            $('#processBtn').click(function() {
+                const text = $('#persianInput').val().trim();
+                if (!text) {
+                    showError('لطفاً متن فارسی وارد کنید');
+                    return;
+                }
+                
+                processText(text);
+            });
+            
+            // Clear button
+            $('#clearBtn').click(function() {
+                $('#persianInput').val('');
+                $('#resultsSection').addClass('hidden');
+                $('#errorMessage').addClass('hidden');
+                $('#healthStatus').addClass('hidden');
+            });
+            
+            // Health check button
+            $('#healthBtn').click(function() {
+                checkHealth();
+            });
+            
+            function processText(text) {
+                showLoading(true);
+                hideError();
+                
+                $.ajax({
+                    url: `${API_BASE}/tts/process`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ text: text }),
+                    success: function(response) {
+                        displayResults(response);
+                        showLoading(false);
+                    },
+                    error: function(xhr, status, error) {
+                        showLoading(false);
+                        showError('خطا در پردازش متن: ' + error);
+                    }
+                });
+            }
+            
+            function displayResults(data) {
+                $('#originalText').text(data.original_text);
+                $('#romanizedText').text(data.romanized_text);
+                
+                // Display tokens
+                const tokensHtml = data.tokens.map(token => 
+                    `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${token}</span>`
+                ).join('');
+                $('#tokens').html(tokensHtml);
+                
+                // Display resolved words
+                const resolvedHtml = data.resolved_words.map(word => 
+                    `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">${word}</span>`
+                ).join('');
+                $('#resolvedWords').html(resolvedHtml);
+                
+                // Display status
+                const statusClass = data.status === 'success' ? 'text-green-600' : 'text-yellow-600';
+                $('#status').html(`<span class="${statusClass} font-semibold">${data.status}</span>`);
+                
+                $('#resultsSection').removeClass('hidden');
+            }
+            
+            function checkHealth() {
+                $.ajax({
+                    url: `${API_BASE}/tts/health`,
+                    method: 'GET',
+                    success: function(response) {
+                        displayHealthStatus(response);
+                    },
+                    error: function(xhr, status, error) {
+                        showError('خطا در بررسی وضعیت سیستم: ' + error);
+                    }
+                });
+            }
+            
+            function displayHealthStatus(data) {
+                const javaStatus = data.java_service === 'healthy' ? 
+                    '<span class="text-green-600 font-semibold">سالم</span>' : 
+                    '<span class="text-red-600 font-semibold">مشکل دارد</span>';
+                
+                const pythonStatus = data.python_service === 'healthy' ? 
+                    '<span class="text-green-600 font-semibold">سالم</span>' : 
+                    '<span class="text-red-600 font-semibold">مشکل دارد</span>';
+                
+                const healthHtml = `
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-700">سرویس جاوا</h4>
+                            <p class="mt-1">${javaStatus}</p>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-700">سرویس پایتون</h4>
+                            <p class="mt-1">${pythonStatus}</p>
+                        </div>
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-700">اندازه کش</h4>
+                            <p class="mt-1 text-blue-600">${data.cache_size || 0}</p>
+                        </div>
+                    </div>
+                `;
+                
+                $('#healthContent').html(healthHtml);
+                $('#healthStatus').removeClass('hidden');
+            }
+            
+            function showLoading(show) {
+                if (show) {
+                    $('#loadingIndicator').removeClass('hidden');
+                    $('#resultsSection').addClass('hidden');
+                } else {
+                    $('#loadingIndicator').addClass('hidden');
+                }
+            }
+            
+            function showError(message) {
+                $('#errorText').text(message);
+                $('#errorMessage').removeClass('hidden');
+            }
+            
+            function hideError() {
+                $('#errorMessage').addClass('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
