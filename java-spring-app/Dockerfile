@@ -20,4 +20,4 @@ RUN mvn clean package -DskipTests
 EXPOSE 8080
 
 # Run application
-ENTRYPOINT ["java", "-jar", "target/*.jar"]
+ENTRYPOINT ["java", "-jar", "target/persian-tts-1.0.0.jar"]

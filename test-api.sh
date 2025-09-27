@@ -8,8 +8,8 @@ set -e
 echo "🧪 Testing Persian TTS API..."
 echo "============================="
 
-API_BASE="http://localhost:8080/api"
-PYTHON_API="http://localhost:8000"
+API_BASE="http://localhost:8081/api"
+PYTHON_API="http://localhost:8888"
 
 # Test data
 TEST_TEXT="سلام دنیا! این یک تست است."

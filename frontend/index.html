@@ -119,7 +119,7 @@
 
     <script>
         $(document).ready(function() {
-            const API_BASE = 'http://localhost:8080/api';
+            const API_BASE = 'http://localhost:8081/api';
             
             // Process text button
             $('#processBtn').click(function() {
@@ -192,16 +192,32 @@
                 $.ajax({
                     url: `${API_BASE}/tts/health`,
                     method: 'GET',
+                    dataType: 'json',
                     success: function(response) {
+                        console.log('Health check response:', response);
                         displayHealthStatus(response);
                     },
                     error: function(xhr, status, error) {
-                        showError('خطا در بررسی وضعیت سیستم: ' + error);
+                        console.error('Health check error:', xhr.responseText, status, error);
+                        showError('خطا در بررسی وضعیت سیستم: ' + error + ' (Status: ' + xhr.status + ')');
                     }
                 });
             }
             
             function displayHealthStatus(data) {
+                console.log('Displaying health status for data:', data);
+                
+                // Handle case where data might be a string
+                if (typeof data === 'string') {
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) {
+                        console.error('Failed to parse health data:', e);
+                        showError('خطا در پردازش پاسخ وضعیت سیستم');
+                        return;
+                    }
+                }
+                
                 const javaStatus = data.java_service === 'healthy' ? 
                     '<span class="text-green-600 font-semibold">سالم</span>' : 
                     '<span class="text-red-600 font-semibold">مشکل دارد</span>';

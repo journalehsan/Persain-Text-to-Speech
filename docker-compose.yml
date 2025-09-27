@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   python-service:
     build: ./python-service
     container_name: persian-tts-python
     ports:
-      - "8000:8000"
+      - "8888:8000"
     volumes:
       - ./python-service/ml-models:/app/ml-models
     environment:
@@ -23,7 +21,7 @@ services:
     build: ./java-spring-app
     container_name: persian-tts-java
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       - APP_PYTHON_SERVICE_URL=http://python-service:8000
     depends_on:
